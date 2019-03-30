@@ -1,0 +1,25 @@
+{
+  "name": "aquaman-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "scripts/deploy.sh",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvezer/aquaman-server.git"
+  },
+  "author": "Matyas Vezer",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/mvezer/aquaman-server/issues"
+  },
+  "homepage": "https://github.com/mvezer/aquaman-server#readme",
+  "dependencies": {
+    "async-mqtt": "^2.2.0",
+    "moment": "^2.24.0",
+    "simple-node-logger": "^18.12.22"
+  }
+}
