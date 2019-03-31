@@ -1,0 +1,56 @@
+{
+    "schedules": {
+        "60P": {
+            "filter": [
+                { "time": "00:00:00", "state": "on" }
+            ],
+            "light": [
+                { "time": "15:00:00", "state": "on" },
+                { "time": "22:00:00", "state": "off" }
+            ],
+            "co2": [
+                { "time": "14:00:00", "state": "on" },
+                { "time": "21:00:00", "state": "off" }
+            ]
+        },
+        "45P": {
+            "filter": [
+                { "time": "21:11:00", "state": "on" },
+                { "time": "21:11:02", "state": "off" },
+                { "time": "21:11:04", "state": "on" },
+                { "time": "21:11:06", "state": "off" }
+            ],
+            "light": [
+                { "time": "21:11:01", "state": "on" },
+                { "time": "21:11:03", "state": "off" },
+                { "time": "21:11:05", "state": "on" },
+                { "time": "21:11:07", "state": "off" }
+            ],
+            "co2": [
+                { "time": "21:11:02", "state": "on" },
+                { "time": "21:11:04", "state": "off" },
+                { "time": "21:11:05", "state": "on" },
+                { "time": "21:11:07", "state": "off" }
+            ]
+        }
+    },
+    "modes": {
+        "feeding": {
+            "timeout": "00:15:00",
+            "slotStates": {
+                "filter": "off",
+                "light": "on",
+                "co2": "off"
+            }
+        },
+        "maintenance": {
+            "timeout": "02:00:00",
+            "slotStates": {
+                "filter": "off",
+                "light": "on",
+                "co2": "off"
+            }
+        }
+    }
+    
+}

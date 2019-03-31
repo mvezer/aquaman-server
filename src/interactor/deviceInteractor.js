@@ -1,57 +1,58 @@
+const EventEmitter = require('events');
 const Device = require('../entities/device');
 const Message = require('../entities/message');
 const MessageInteractor = require('./messageIntractor');
 const moment = require('moment');
 const log = require('../infrastructure/logger')('DeviceInteractor');
 
-class DeviceInteractor {
-    static get COMMAND_SYNC_TIME() { return 'sync_time'; }
-    static get COMMAND_REQUEST_SYNC_TIME() { return 'req_sync_time'; }
-    static get COMMAND_SYNC_TIME() { return 'sync_time'; }
-    static get COMMAND_SET_STATUS() { return 'set_status'; }
-    static get COMMAND_REPORT_STATUS() { return 'report_status'; }
-    static get COMMAND_TOGGLE_REQUEST() { return 'toggle_request'; }
+class DeviceInteractor extends EventEmitter {
+    static get EVENT_DEVICE_REGISTERED() { return 'device_registered'; }
 
     constructor(messageInteractor) {
+        super();
         this.devices = new Map();
-        this.commandParserMap = new Map();
-        this.commandParserMap.set(DeviceInteractor.COMMAND_REQUEST_SYNC_TIME, this.onSyncTimeRequest.bind(this));
-        this.commandParserMap.set(DeviceInteractor.COMMAND_TOGGLE_REQUEST, this.onToggleRequest.bind(this));
-        this.commandParserMap.set(DeviceInteractor.COMMAND_REPORT_STATUS, this.onStatusReport.bind(this));
+        
         this.messageInteractor = messageInteractor;
-        this.messageInteractor.on(MessageInteractor.EVENT_MESSAGE, this.onMessage.bind(this));
+        this.messageInteractor.on(MessageInteractor.EVENT_SYNC_TIME_REQUEST, this.onSyncTimeRequest.bind(this));
+        this.messageInteractor.on(MessageInteractor.EVENT_STATUS_REPORT, this.onStatusReport.bind(this));
     }
 
     registerDevice(id, slots) {
         this.devices.set(id, new Device(id, slots));
+        this.emit(DeviceInteractor.EVENT_DEVICE_REGISTERED, id);
     }
 
-    onMessage(message) {
-        const { deviceId, command } = message;
-        if (this.commandParserMap.has(command)) {
-            this.commandParserMap.get(command)(message);
+    async onSyncTimeRequest(deviceId, slots) {
+        if (!this.devices.has(deviceId)) {
+            this.registerDevice(deviceId, slots);
+        }
+        await this.messageInteractor.sendTimeSync(deviceId, moment().unix());
+    }
+
+    async onStatusReport(deviceId, states) {
+        if (!this.devices.has(deviceId)) {
+            log.warn(`not registered device id received (${deviceId}), registering device...`);
+            await this.messageInteractor.sendTimeSync(deviceId, moment().unix());
+            this.registerDevice(deviceId, Object.keys(states));
+        }
+        try {
+            this.devices.get(deviceId).update(states);
+        } catch (error) {
+            log.error(`error when updating device (${deviceId}): ${error.message}`);
+        }
+    }
+
+    setState(deviceId, slotId, state) {
+        return this.messageInteractor.sendState(deviceId, slotId, state, moment.unix());
+    }
+
+    async onToggleRequest(deviceId, togglestate) {
+        if (!this.devices.has(deviceId)) {
+            log.error(`cannot process toggle request, device is unregistered: ${deviceId}`);
         } else {
-            log.error(`Unknown commad received! (message contents: ${message.toString()})`);
+            Object.keys(togglestate).forEach(async (slotId) => { await this.messageInteractor.sendState(deviceId, slotId, state, moment().unix()); });
         }
     }
-
-    async onSyncTimeRequest(message) {
-        const { deviceId, payload } = message;
-        if (!this.deviceId.has(deviceId)) {
-            this.registerDevice(deviceId, payload);
-        }
-        const timestamp = moment().unix();
-        await this.messageInteractor.send(new Message(deviceId, DeviceInteractor.COMMAND_SYNC_TIME, {}, timestamp));
-    }
-
-    onToggleRequest(message) {
-
-    }
-
-    onStatusReport(message) {
-
-    }
-
 }
 
 module.exports = DeviceInteractor;
