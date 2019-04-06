@@ -17,9 +17,21 @@ class DeviceInteractor extends EventEmitter {
         this.messageInteractor.on(MessageInteractor.EVENT_STATUS_REPORT, this.onStatusReport.bind(this));
     }
 
+    lockSlot(deviceId, slotId) {
+        this.devices.get(deviceId).lockSlot(slotId);
+    }
+
+    unlockSlot(deviceId, slotId) {
+        this.devices.get(deviceId).unlockSlot(slotId);
+    }
+
     registerDevice(id, slots) {
         this.devices.set(id, new Device(id, slots));
         this.emit(DeviceInteractor.EVENT_DEVICE_REGISTERED, id);
+    }
+
+    getRegisteredDevices() {
+        return [ ...this.devices.keys() ];
     }
 
     async onSyncTimeRequest(deviceId, slots) {
@@ -33,10 +45,10 @@ class DeviceInteractor extends EventEmitter {
         if (!this.devices.has(deviceId)) {
             log.warn(`not registered device id received (${deviceId}), registering device...`);
             await this.messageInteractor.sendTimeSync(deviceId, moment().unix());
-            this.registerDevice(deviceId, Object.keys(states));
+            this.registerDevice(deviceId, Object.keys(states.slots));
         }
         try {
-            this.devices.get(deviceId).update(states);
+            this.devices.get(deviceId).update(states.hasOwnProperty('slots') ? states.slots : states );
         } catch (error) {
             log.error(`error when updating device (${deviceId}): ${error.message}`);
         }

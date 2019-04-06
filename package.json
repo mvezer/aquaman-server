@@ -20,6 +20,7 @@
   "dependencies": {
     "async-mqtt": "^2.2.0",
     "moment": "^2.24.0",
+    "restify": "^8.2.0",
     "simple-node-logger": "^18.12.22"
   }
 }

@@ -36,7 +36,7 @@
     },
     "modes": {
         "feeding": {
-            "timeout": "00:15:00",
+            "timeout": "00:00:20",
             "slotStates": {
                 "filter": "off",
                 "light": "on",
