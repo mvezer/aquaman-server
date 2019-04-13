@@ -15,6 +15,7 @@ class DeviceInteractor extends EventEmitter {
         this.messageInteractor = messageInteractor;
         this.messageInteractor.on(MessageInteractor.EVENT_SYNC_TIME_REQUEST, this.onSyncTimeRequest.bind(this));
         this.messageInteractor.on(MessageInteractor.EVENT_STATUS_REPORT, this.onStatusReport.bind(this));
+        this.messageInteractor.on(MessageInteractor.EVENT_TOGGLE_REQUEST, this.onToggleRequest.bind(this));
     }
 
     lockSlot(deviceId, slotId) {
@@ -54,15 +55,20 @@ class DeviceInteractor extends EventEmitter {
         }
     }
 
-    setState(deviceId, slotId, state) {
-        return this.messageInteractor.sendState(deviceId, slotId, state, moment.unix());
+    async setState(deviceId, slotId, state) {
+        if (this.devices.has(deviceId) && !this.devices.get(deviceId).isLocked(slotId)) {
+            return this.messageInteractor.sendState(deviceId, slotId, state, moment.unix());
+        }
+        
+        return false;
     }
 
     async onToggleRequest(deviceId, togglestate) {
+        const { slotId, state } = togglestate;
         if (!this.devices.has(deviceId)) {
             log.error(`cannot process toggle request, device is unregistered: ${deviceId}`);
         } else {
-            Object.keys(togglestate).forEach(async (slotId) => { await this.messageInteractor.sendState(deviceId, slotId, state, moment().unix()); });
+            await this.setState(deviceId, slotId, state ? Device.STATUS_ON : Device.STATUS_OFF);
         }
     }
 }

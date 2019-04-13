@@ -36,6 +36,17 @@ class RestInteractor {
 
             res.send(200, { status: 'OK', data: response });
         });
+
+        this.server.get('/status', (req, res, next) => {
+            const data = [];
+            this.deviceInteractor.devices.forEach((device, deviceId) => {
+                const slots = {};
+                device.slots.forEach((slotData, slotId) => { slots[slotId] = slotData });
+                data.push({ deviceId, slots });
+            });
+
+            res.send(200, { status: 'OK', data });
+        });
     }
 
     init() {

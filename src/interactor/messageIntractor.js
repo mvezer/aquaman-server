@@ -43,7 +43,7 @@ class MessageInteractor extends EventEmitter {
 
     onMessage(mqttMessage) {
         const message = Message.fromMQTTmessage(mqttMessage);
-        log.info(`Message received: ${message.toString()}`);
+        log.debug(`Message received: ${message.toString()}`);
         const { deviceId, command } = message;
         if (this.commandParserMap.has(command)) {
             this.commandParserMap.get(command)(message);

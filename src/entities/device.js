@@ -16,6 +16,15 @@ class Device {
         }
     }
 
+    isLocked(slotId) {
+        if (this.slots.has(slotId)) {
+            return this.slots.get(slotId).isLocked;
+        }
+
+        throw new Error(`Unknown slotId: ${slotId}`);
+        return false;
+    }
+
     unlockSlot(slotId) {
         if (this.slots.has(slotId)) {
             this.slots.get(slotId).isLocked = false;

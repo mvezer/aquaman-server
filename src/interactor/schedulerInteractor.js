@@ -24,11 +24,12 @@ class SchedulerInteractor {
         }
         this.activeModeMap[deviceId].modeId = modeId;
         this.activeModeMap[deviceId].timeoutId = setInterval(this.onModeTimeout.bind(this), this.modes[modeId].timeout * 1000, deviceId, modeId);
-        Object.keys(this.modes[modeId].slotStates).forEach(slotId => this.deviceInteractor.lockSlot(deviceId, slotId));
         Object.keys(this.modes[modeId].slotStates)
                 .forEach(async (slotId) => {
-                    await this.deviceInteractor.setState(deviceId, slotId, this.modes[modeId].slotStates[slotId]
-                )}, this);
+                    await this.deviceInteractor.setState(deviceId, slotId, this.modes[modeId].slotStates[slotId]);
+                    this.deviceInteractor.lockSlot(deviceId, slotId);
+                }, this);
+        log.info(`Mode activated! (deviceId: '${deviceId}', mode: '${modeId}')`);
         return { deviceId, modeId, isActive: true };
     }
 
@@ -42,6 +43,7 @@ class SchedulerInteractor {
                     await this.deviceInteractor.unlockSlot(deviceId, slotId);
                     await this.deviceInteractor.setState(deviceId, slotId, this.getCurrentState(deviceId, slotId)
                 )}, this);
+            log.info(`Mode deactivated! (deviceId: '${deviceId}', mode: '${oldModeId}')`);
         }
     }
 
