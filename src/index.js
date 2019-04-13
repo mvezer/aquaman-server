@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const DeviceInteractor = require('./interactor/deviceInteractor');
 const { mqttManager, messageInteractor, deviceInteractor, schedulerInteractor, restIntercator } = require('./bootstrap');
 
