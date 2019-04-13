@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "deploy": "scripts/deploy.sh",
-    "start": "node src/index.js"
+    "start": "MOSQUITTO_IP=127.0.0.1 MOSQUITTO_PORT=1883 LOG_DIR=log node src/index.js"
   },
   "repository": {
     "type": "git",
